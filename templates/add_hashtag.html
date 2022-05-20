@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>add hashtag</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    table, th, td {
+    border: 1px solid black;
+    font-family:verdana;
+    border-collapse: collapse;
+    text-align: center;
+}
+.button {
+  background-color: #4CAF50;
+  border: none;
+  color: black;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  font-family:verdana;
+  cursor: pointer;
+}
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  font-family:verdana;
+  border-radius: 4px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+input[type=submit] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  font-family:verdana;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+.alert {
+  padding: 20px;
+  background-color: #f44336;
+  color: white;
+  opacity: 1;
+  font-family:verdana;
+  transition: opacity 0.6s;
+  margin-bottom: 15px;
+}
+
+.alert.success {background-color: #04AA6D;}
+.alert.info {background-color: #2196F3;}
+.alert.warning {background-color: #ff9800;}
+
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  font-family:verdana;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+    </style>
+</head>
+<br></br>
+<h1 style="text-align:center; font-family:verdana;">TikTok Hashtag Scraper</h1>
+
+<br></br>
+<br></br>
+{% if already_flag == True %}
+<div class="alert">
+  <span class="closebtn">&times;</span>
+  <strong>Already exist!</strong> Hashtag already exist.
+</div>
+{% endif %}
+
+{% if data_saved == True %}
+<div class="alert success">
+  <span class="closebtn">&times;</span>
+  <strong>Success!</strong> Hashtag saved.
+</div>
+{% endif %}
+
+{% if hashtag_found == False %}
+<div class="alert">
+  <span class="closebtn">&times;</span>
+  <strong>Hashtag not found!</strong> Enter Hashtag.
+</div>
+{% endif %}
+
+<body>
+<p style="font-family:verdana; font-size:160%;">Add Hashtag name:</p>
+<form action="/add_hashtag/" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="CSRF" value="{{ csrf_token }}"/>
+    <input id="hashtag_name" type="text" name="hashtag_name" placeholder="Enter hashtag">
+    <input type="submit" value="OK">
+
+</form>
+<br></br>
+<br></br>
+
+{% if scraped_flag == True %}
+<div class="alert success">
+  <span class="closebtn">&times;</span>
+  <strong>Success!</strong> Data scraped and saved in DB.
+</div>
+{% endif %}
+
+{% if scraped_flag == False %}
+<div class="alert">
+  <span class="closebtn">&times;</span>
+  <strong>Hashtag not found!</strong> Enter Hashtag to scraped hashtag data.
+</div>
+{% endif %}
+
+<form action="/scrape_hashtag_data/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="CSRF" value="{{ csrf_token }}"/>
+            <button class="button" id="req_id" name="req_id" type="submit" >Scrape hashtags</button>
+</form>
+
+<br></br>
+<br></br>
+<h2 style="font-family:verdana"; >All scraped Hashtags list</h2>
+{% block content %}
+<table style="width:100%; font-family:verdana" class="table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Hashtag Name</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in scraped_data %}
+        <tr style="color:green">
+            <td>{{i.id}}</td>
+            <td>{{i.hashtag_name}}</td>
+            <td><form action="/get_hashtag_stats/" method="get">
+            {% csrf_token %}
+            <input type="hidden" name="CSRF" value="{{ csrf_token }}"/>
+                <button class="button" id="req_id" name="req_id" type="submit" value={{i.id}}>Open</button>
+            </form></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<br></br>
+<br></br>
+
+<dialog style="font-family:verdana" open>Note: All red name hashtags are those which are not valid hashtags</dialog>
+<br></br>
+<br></br>
+<h2 style="font-family:verdana";>All unscraped Hashtags list</h2>
+
+<table style="width:100%; font-family:verdana" class="table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Hashtag Name</th>
+        <th scope="col">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in unscraped_data %}
+        {% if i.is_valid_hashtag == True %}
+        <tr style="color:green">
+            <td>{{i.id}}</td>
+            <td>{{i.hashtag_name }}</td>
+            <td><form action="/get_hashtag_stats/" method="get">
+            {% csrf_token %}
+            <input type="hidden" name="CSRF" value="{{ csrf_token }}"/>
+                <button class="button" id="req_idc" name="req_id" type="submit" value={{i.id}}>Open</button>
+            </form></td>
+        </tr>
+        {% elif i.is_valid_hashtag == False %}
+            <tr style="color:red">
+            <td>{{i.id}}</td>
+            <td>{{i.hashtag_name }}</td>
+            <td><form action="/get_hashtag_stats/" method="get">
+            {% csrf_token %}
+            <input type="hidden" name="CSRF" value="{{ csrf_token }}"/>
+                <button class="button" id="req_id" name="req_id" type="submit" value={{i.id}}>Open</button>
+            </form></td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+<script>
+var close = document.getElementsByClassName("closebtn");
+var i;
+
+for (i = 0; i < close.length; i++) {
+  close[i].onclick = function(){
+    var div = this.parentElement;
+    div.style.opacity = "0";
+    setTimeout(function(){ div.style.display = "none"; }, 600);
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>stats data</title>
+    <style>
+    table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    text-align: center;
+}
+.button {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+    </style>
+</head>
+<body>
+{% block content %}
+<table style="width:100%" class="table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">hashtag_Id</th>
+        <th scope="col">view_count</th>
+        <th scope="col">video_count</th>
+        <th scope="col">is_commerce</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for i in data %}
+    <tr>
+        <td>{{i.id}}</td>
+        <td>{{i.hashtag_id}}</td>
+        <td>{{i.view_count}}</td>
+        <td>{{i.video_count}}</td>
+        <td>{{i.is_commerce}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+</body>
+</html>
